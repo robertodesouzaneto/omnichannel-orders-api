@@ -3,9 +3,14 @@ package com.example.omnichannel_orders_api.api.exception;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import java.util.NoSuchElementException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -52,6 +57,21 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(
+            AccessDeniedException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponse(
+                        "FORBIDDEN",
+                        "You do not have permission to perform this action",
+                        List.of(),
+                        Instant.now(),
+                        request.getRequestURI()
+                ));
+    }
+
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentials(
             BadCredentialsException ex,
@@ -67,10 +87,65 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<ErrorResponse> handleNotFound(
+            NoSuchElementException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse(
+                        "NOT_FOUND",
+                        ex.getMessage(),
+                        List.of(),
+                        Instant.now(),
+                        request.getRequestURI()
+                ));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrity(
+            DataIntegrityViolationException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse(
+                        "CONFLICT",
+                        "Operation violates a data integrity constraint",
+                        List.of(),
+                        Instant.now(),
+                        request.getRequestURI()
+                ));
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleUnreadableMessage(
             HttpMessageNotReadableException ex,
             HttpServletRequest request) {
+
+        if (ex.getCause() instanceof UnrecognizedPropertyException upe) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse(
+                            "UNKNOWN_FIELD",
+                            "Field '" + upe.getPropertyName() + "' is not allowed in this request",
+                            List.of(),
+                            Instant.now(),
+                            request.getRequestURI()
+                    ));
+        }
+
+        if (ex.getCause() instanceof InvalidFormatException ife) {
+            String field = ife.getPath().isEmpty() ? "unknown" : ife.getPath().get(0).getFieldName();
+            String targetType = ife.getTargetType().getSimpleName();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse(
+                            "INVALID_FIELD_VALUE",
+                            "Field '" + field + "' has an invalid value for type " + targetType
+                                    + ". Received: '" + ife.getValue() + "'",
+                            List.of(),
+                            Instant.now(),
+                            request.getRequestURI()
+                    ));
+        }
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(
