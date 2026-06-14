@@ -2,13 +2,14 @@ package com.example.omnichannel_orders_api.application.service;
 
 import com.example.omnichannel_orders_api.application.dto.CategoryRequest;
 import com.example.omnichannel_orders_api.application.dto.CategoryResponse;
+import com.example.omnichannel_orders_api.application.dto.PageResponse;
 import com.example.omnichannel_orders_api.domain.model.Category;
 import com.example.omnichannel_orders_api.infrastructure.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -18,11 +19,11 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    public List<CategoryResponse> listActive() {
-        return categoryRepository.findAllByActiveTrue()
-                .stream()
-                .map(CategoryResponse::from)
-                .toList();
+    public PageResponse<CategoryResponse> listActive(Pageable pageable) {
+        return PageResponse.from(
+                categoryRepository.findAllByActiveTrue(pageable)
+                        .map(CategoryResponse::from)
+        );
     }
 
     public CategoryResponse getById(UUID id) {

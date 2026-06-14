@@ -1,5 +1,6 @@
 package com.example.omnichannel_orders_api.application.service;
 
+import com.example.omnichannel_orders_api.application.dto.PageResponse;
 import com.example.omnichannel_orders_api.application.dto.ProductRequest;
 import com.example.omnichannel_orders_api.application.dto.ProductResponse;
 import com.example.omnichannel_orders_api.domain.model.Category;
@@ -7,10 +8,10 @@ import com.example.omnichannel_orders_api.domain.model.Product;
 import com.example.omnichannel_orders_api.infrastructure.repository.CategoryRepository;
 import com.example.omnichannel_orders_api.infrastructure.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -21,18 +22,18 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
 
-    public List<ProductResponse> listActive() {
-        return productRepository.findAllByActiveTrue()
-                .stream()
-                .map(ProductResponse::from)
-                .toList();
+    public PageResponse<ProductResponse> listActive(Pageable pageable) {
+        return PageResponse.from(
+                productRepository.findAllByActiveTrue(pageable)
+                        .map(ProductResponse::from)
+        );
     }
 
-    public List<ProductResponse> listByCategory(UUID categoryId) {
-        return productRepository.findAllByCategoryIdAndActiveTrue(categoryId)
-                .stream()
-                .map(ProductResponse::from)
-                .toList();
+    public PageResponse<ProductResponse> listByCategory(UUID categoryId, Pageable pageable) {
+        return PageResponse.from(
+                productRepository.findAllByCategoryIdAndActiveTrue(categoryId, pageable)
+                        .map(ProductResponse::from)
+        );
     }
 
     public ProductResponse getById(UUID id) {

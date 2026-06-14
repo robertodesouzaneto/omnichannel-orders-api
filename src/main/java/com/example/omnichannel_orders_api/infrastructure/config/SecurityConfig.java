@@ -43,6 +43,15 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/products/**").hasAnyRole("MANAGER", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/products/**").hasAnyRole("MANAGER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/products/**").hasAnyRole("MANAGER", "ADMIN")
+                        // Units — write operations require MANAGER or ADMIN
+                        .requestMatchers(HttpMethod.POST, "/units/**").hasAnyRole("MANAGER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/units/**").hasAnyRole("MANAGER", "ADMIN")
+                        // Orders — list all restricted to MANAGER/ADMIN
+                        .requestMatchers(HttpMethod.GET, "/orders").hasAnyRole("MANAGER", "ADMIN")
+                        // Payments — callback is public (authenticated via X-Gateway-Token header)
+                        .requestMatchers(HttpMethod.POST, "/payments/callback").permitAll()
+                        // Orders — status update by kitchen/manager/admin
+                        .requestMatchers(HttpMethod.PATCH, "/orders/**").hasAnyRole("KITCHEN", "MANAGER", "ADMIN")
                         // Admin
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()

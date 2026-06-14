@@ -2,17 +2,19 @@ package com.example.omnichannel_orders_api.api.controller;
 
 import com.example.omnichannel_orders_api.application.dto.CategoryRequest;
 import com.example.omnichannel_orders_api.application.dto.CategoryResponse;
+import com.example.omnichannel_orders_api.application.dto.PageResponse;
 import com.example.omnichannel_orders_api.application.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -25,9 +27,10 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    @Operation(summary = "List all active categories")
-    public List<CategoryResponse> listActive() {
-        return categoryService.listActive();
+    @Operation(summary = "List all active categories (paginated)")
+    public PageResponse<CategoryResponse> listActive(
+            @PageableDefault(size = 20, sort = "name") Pageable pageable) {
+        return categoryService.listActive(pageable);
     }
 
     @GetMapping("/{id}")
@@ -54,5 +57,4 @@ public class CategoryController {
     public void deactivate(@PathVariable UUID id) {
         categoryService.deactivate(id);
     }
-
 }

@@ -1,5 +1,6 @@
 package com.example.omnichannel_orders_api.api.controller;
 
+import com.example.omnichannel_orders_api.application.dto.PageResponse;
 import com.example.omnichannel_orders_api.application.dto.ProductRequest;
 import com.example.omnichannel_orders_api.application.dto.ProductResponse;
 import com.example.omnichannel_orders_api.application.service.ProductService;
@@ -8,11 +9,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -25,15 +27,18 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    @Operation(summary = "List all active products")
-    public List<ProductResponse> listActive() {
-        return productService.listActive();
+    @Operation(summary = "List all active products (paginated)")
+    public PageResponse<ProductResponse> listActive(
+            @PageableDefault(size = 20, sort = "name") Pageable pageable) {
+        return productService.listActive(pageable);
     }
 
     @GetMapping("/category/{categoryId}")
-    @Operation(summary = "List active products by category")
-    public List<ProductResponse> listByCategory(@PathVariable UUID categoryId) {
-        return productService.listByCategory(categoryId);
+    @Operation(summary = "List active products by category (paginated)")
+    public PageResponse<ProductResponse> listByCategory(
+            @PathVariable UUID categoryId,
+            @PageableDefault(size = 20, sort = "name") Pageable pageable) {
+        return productService.listByCategory(categoryId, pageable);
     }
 
     @GetMapping("/{id}")

@@ -1,0 +1,26 @@
+# Copie este arquivo para application-local.properties e preencha com seus valores
+# O arquivo application-local.properties é git-ignored e NUNCA deve ser commitado
+
+# Database
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=omnichannel_db
+DB_USERNAME=postgres
+DB_PASSWORD=sua_senha_aqui
+
+# Bootstrap admin (criado automaticamente na primeira execução)
+ADMIN_EMAIL=admin@raizes.com
+ADMIN_PASSWORD=senha_admin_aqui
+ADMIN_NAME=Administrador Master
+
+# JWT (mínimo 32 caracteres)
+JWT_SECRET=troque-por-uma-chave-secreta-longa-aqui!!
+
+# Tempo de expiração do JWT em milissegundos (padrão: 86400000 = 24h)
+# JWT_EXPIRATION_MS=86400000
+
+# Porta do servidor (padrão: 8080)
+# SERVER_PORT=8080
+
+# Payment gateway mock
+GATEWAY_SECRET=troque-por-um-segredo-do-gateway-aqui

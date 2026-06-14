@@ -1,6 +1,8 @@
 package com.example.omnichannel_orders_api.api.exception;
 
+import com.example.omnichannel_orders_api.api.exception.BusinessException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -13,6 +15,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import java.util.NoSuchElementException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.Instant;
@@ -81,6 +84,21 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(
                         "UNAUTHORIZED",
                         "Invalid email or password",
+                        List.of(),
+                        Instant.now(),
+                        request.getRequestURI()
+                ));
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ErrorResponse> handleBusiness(
+            BusinessException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(new ErrorResponse(
+                        "BUSINESS_ERROR",
+                        ex.getMessage(),
                         List.of(),
                         Instant.now(),
                         request.getRequestURI()
@@ -166,6 +184,36 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(
                         "NOT_FOUND",
                         "Route not found: " + request.getRequestURI(),
+                        List.of(),
+                        Instant.now(),
+                        request.getRequestURI()
+                ));
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ErrorResponse> handleResponseStatus(
+            ResponseStatusException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity.status(ex.getStatusCode())
+                .body(new ErrorResponse(
+                        ex.getStatusCode().toString().replace(" ", "_"),
+                        ex.getReason(),
+                        List.of(),
+                        Instant.now(),
+                        request.getRequestURI()
+                ));
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleMethodNotSupported(
+            HttpRequestMethodNotSupportedException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+                .body(new ErrorResponse(
+                        "METHOD_NOT_ALLOWED",
+                        "Method " + ex.getMethod() + " is not supported for route: " + request.getRequestURI(),
                         List.of(),
                         Instant.now(),
                         request.getRequestURI()
