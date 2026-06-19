@@ -90,6 +90,21 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(ConsentRequiredException.class)
+    public ResponseEntity<ErrorResponse> handleConsentRequired(
+            ConsentRequiredException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponse(
+                        "CONSENT_REQUIRED",
+                        ex.getMessage(),
+                        List.of(),
+                        Instant.now(),
+                        request.getRequestURI()
+                ));
+    }
+
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponse> handleBusiness(
             BusinessException ex,

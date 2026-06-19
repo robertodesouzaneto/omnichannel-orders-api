@@ -1,6 +1,7 @@
 package com.example.omnichannel_orders_api.application.service;
 
 import com.example.omnichannel_orders_api.api.exception.BusinessException;
+import com.example.omnichannel_orders_api.api.exception.ConsentRequiredException;
 import com.example.omnichannel_orders_api.application.dto.CreateOrderRequest;
 import com.example.omnichannel_orders_api.application.dto.OrderResponse;
 import com.example.omnichannel_orders_api.application.dto.PageResponse;
@@ -27,6 +28,7 @@ public class OrderService {
     private final UnitRepository unitRepository;
     private final ProductRepository productRepository;
     private final StockRepository stockRepository;
+    private final ConsentService consentService;
 
     public PageResponse<OrderResponse> listAll(Pageable pageable) {
         return PageResponse.from(
@@ -39,6 +41,8 @@ public class OrderService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User customer = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NoSuchElementException("User not found"));
+
+        consentService.verifyActiveConsent(customer);
 
         Unit unit = unitRepository.findByIdAndActiveTrue(request.unitId())
                 .orElseThrow(() -> new NoSuchElementException("Unit not found: " + request.unitId()));
