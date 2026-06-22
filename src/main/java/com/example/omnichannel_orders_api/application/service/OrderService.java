@@ -29,6 +29,7 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final StockRepository stockRepository;
     private final ConsentService consentService;
+    private final AuditService auditService;
 
     public PageResponse<OrderResponse> listAll(Pageable pageable) {
         return PageResponse.from(
@@ -75,7 +76,15 @@ public class OrderService {
         order.getItems().addAll(items);
         order.calculateTotal();
 
-        return OrderResponse.from(orderRepository.save(order));
+        Order saved = orderRepository.save(order);
+        auditService.log(
+                customer.getId(),
+                "ORDER_CREATED",
+                "Order",
+                saved.getId(),
+                "channel=" + saved.getChannel() + " total=" + saved.getTotal()
+        );
+        return OrderResponse.from(saved);
     }
 
     public OrderResponse getById(UUID id) {
@@ -127,7 +136,21 @@ public class OrderService {
                     "Cannot transition order from " + order.getStatus() + " to " + newStatus);
         }
 
+        OrderStatus previousStatus = order.getStatus();
         order.changeStatus(newStatus);
-        return OrderResponse.from(orderRepository.save(order));
+        Order saved = orderRepository.save(order);
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        userRepository.findByEmail(email).ifPresent(user ->
+                auditService.log(
+                        user.getId(),
+                        "ORDER_STATUS_CHANGED",
+                        "Order",
+                        saved.getId(),
+                        "from=" + previousStatus + " to=" + newStatus
+                )
+        );
+
+        return OrderResponse.from(saved);
     }
 }

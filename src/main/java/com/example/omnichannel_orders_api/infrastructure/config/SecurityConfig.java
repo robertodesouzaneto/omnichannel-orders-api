@@ -52,6 +52,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/payments/callback").permitAll()
                         // Orders — status update by kitchen/manager/admin
                         .requestMatchers(HttpMethod.PATCH, "/orders/**").hasAnyRole("KITCHEN", "MANAGER", "ADMIN")
+                        // Audit — read only, MANAGER or ADMIN
+                        .requestMatchers("/audit/**").hasAnyRole("MANAGER", "ADMIN")
                         // Admin
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
