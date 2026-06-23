@@ -39,7 +39,3 @@ CREATE TABLE order_items (
 CREATE INDEX idx_orders_customer  ON orders(customer_id);
 CREATE INDEX idx_orders_unit      ON orders(unit_id);
 CREATE INDEX idx_order_items_order ON order_items(order_id);
-
--- Seed: first unit so tests work out of the box
-INSERT INTO units (name, address)
-VALUES ('Unidade Centro', 'Rua do Nordeste, 100 – Centro');
