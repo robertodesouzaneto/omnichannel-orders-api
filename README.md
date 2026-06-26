@@ -124,6 +124,31 @@ A conta de administrador é criada automaticamente na primeira execução usando
 
 ---
 
+## Coleção Postman
+
+A coleção utilizada nos testes está disponível em `test/` e pode ser importada diretamente no Postman para reproduzir todos os cenários de teste.
+
+A coleção utiliza variáveis de ambiente para evitar repetição de valores entre requisições. A tabela abaixo descreve cada variável, sua origem e se requer atualização manual:
+
+| Variável | Valor padrão | Origem | Precisa atualizar? |
+|---|---|---|---|
+| `apiUrl` | `http://localhost:8080` | Fixo | Apenas se a porta for alterada |
+| `unitId` | `bbbbbbbb-bbbb-bbbb-bbbb-000000000001` | Seed V7 | Não |
+| `baiaoDeDoisId` | `dddddddd-dddd-dddd-dddd-000000000001` | Seed V7 | Não |
+| `sucoDeCajuId` | `dddddddd-dddd-dddd-dddd-000000000006` | Seed V7 | Não |
+| `gatewayToken` | — | Deve ser igual ao `GATEWAY_SECRET` configurado | Sim |
+| `accessToken` | — | Resultado de `POST /auth/login` (staff/admin) | Sim — atualizar após login |
+| `customerAccessToken` | — | Resultado de `POST /auth/login` (customer) | Sim — atualizar após login |
+| `clienteId` | — | Resultado de `POST /auth/register/customer` | Sim — preenchido no primeiro teste |
+| `pedidoId` | — | Resultado de `POST /orders` | Sim — preenchido ao criar pedido |
+| `pagamentoId` | — | Resultado de `POST /payments/request/{orderId}` | Sim — preenchido ao solicitar pagamento |
+| `pedidoId2` | — | Resultado de segundo `POST /orders` | Sim — usado nos testes de pagamento recusado |
+| `pagamentoId2` | — | Resultado de segundo `POST /payments/request/{orderId}` | Sim — usado nos testes de pagamento recusado |
+
+> Os valores de `unitId`, `baiaoDeDoisId` e `sucoDeCajuId` são fixos pois correspondem a registros inseridos pela migration V7 com UUIDs determinísticos. Os tokens e IDs de pedido/pagamento são preenchidos automaticamente pelos scripts de teste a cada execução.
+
+---
+
 ## Estrutura do projeto
 
 ```
@@ -138,6 +163,7 @@ src/
 │       ├── db/migration/   # Scripts Flyway (V1–V7)
 │       ├── application.properties
 │       └── application-local.properties.example
+test/                       # Coleção Postman
 ```
 
 ---

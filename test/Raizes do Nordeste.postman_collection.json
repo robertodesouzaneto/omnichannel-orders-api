@@ -1,0 +1,1145 @@
+{
+  "info": {
+    "_postman_id": "a2d6d3e8-bcf0-493c-934b-ce9534865979",
+    "name": "Raizes do Nordeste",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "14987721"
+  },
+  "item": [
+    {
+      "name": "T01 - Login válido",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Validade status e Salva Token\", function () {",
+              "    pm.response.to.have.status(200);",
+              "    const jsonData = pm.response.json();",
+              "    pm.collectionVariables.set(\"accessToken\", jsonData.token);",
+              "});",
+              "",
+              "pm.test(\"Valida resposta da API\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.token).to.not.be.null;",
+              "    pm.expect(jsonData.userId).to.not.be.null;",
+              "    pm.expect(jsonData.name).to.eq('Administrador Master');",
+              "    pm.expect(jsonData.role).to.eq('ADMIN');",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"admin@raizes.com\",\r\n  \"password\": \"admin1234\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{apiUrl}}/auth/login",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T02 - Cadastro de cliente com consentimento",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Validade status e Salva Token\", function () {\r",
+              "    pm.response.to.have.status(201);\r",
+              "    const jsonData = pm.response.json();\r",
+              "    pm.collectionVariables.set(\"customerAccessToken\", jsonData.token);\r",
+              "    pm.collectionVariables.set(\"clienteId\", jsonData.userId);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Valida resposta da API\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.token).to.not.be.null;\r",
+              "    pm.expect(jsonData.userId).to.not.be.null;\r",
+              "    pm.expect(jsonData.name).to.eq('Cliente da Silva');\r",
+              "    pm.expect(jsonData.role).to.eq('CUSTOMER');\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"cliente@example.com\",\r\n  \"password\": \"senha1234\",\r\n  \"name\": \"Cliente da Silva\",\r\n  \"consentAccepted\": true\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{apiUrl}}/auth/register/customer",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "auth",
+            "register",
+            "customer"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T03 - Criar pedido com itens válidos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Validade status e salva Id do pedido\", function () {\r",
+              "    pm.response.to.have.status(201);\r",
+              "    const jsonData = pm.response.json();\r",
+              "    pm.collectionVariables.set(\"pedidoId\", jsonData.id);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Valida resposta da API\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.id).to.not.be.null;\r",
+              "    pm.expect(jsonData.customerId).to.not.be.null;\r",
+              "    pm.expect(jsonData.customerName).to.eq('Cliente da Silva');\r",
+              "    pm.expect(jsonData.status).to.eq('PENDING');\r",
+              "    pm.expect(jsonData.total).to.eq(77.80);\r",
+              "    pm.expect(jsonData.items).to.have.length(2);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customerAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"unitId\": \"{{unitId}}\",\r\n  \"channel\": \"APP\",\r\n  \"items\": [\r\n    { \"productId\": \"{{baiaoDeDoisId}}\", \"quantity\": 2 },\r\n    { \"productId\": \"{{sucoDeCajuId}}\", \"quantity\": 1 }\r\n  ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{apiUrl}}/orders",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "orders"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T04 - Solicitar pagamento do pedido",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "\r",
+              "const pedidoId = pm.collectionVariables.get(\"pedidoId\");\r",
+              "\r",
+              "pm.test(\"Validade status e salva Id do pagamento\", function () {\r",
+              "    pm.response.to.have.status(201);\r",
+              "    const jsonData = pm.response.json();\r",
+              "    pm.collectionVariables.set(\"pagamentoId\", jsonData.id);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Valida resposta da API\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.id).to.not.be.null;\r",
+              "    pm.expect(jsonData.orderId).to.eq(pedidoId);\r",
+              "    pm.expect(jsonData.status).to.eq('REQUESTED');\r",
+              "    pm.expect(jsonData.amount).to.eq(77.80);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{apiUrl}}/payments/request/{{pedidoId}}",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "payments",
+            "request",
+            "{{pedidoId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T05 - Callback do gateway ->    pagamento aprovado",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const pedidoId = pm.collectionVariables.get(\"pedidoId\");\r",
+              "\r",
+              "pm.test(\"Validade status\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Valida resposta da API\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.id).to.not.be.null;\r",
+              "    pm.expect(jsonData.orderId).to.eq(pedidoId);\r",
+              "    pm.expect(jsonData.status).to.eq('APPROVED');\r",
+              "    pm.expect(jsonData.amount).to.eq(77.80);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-Gateway-Token",
+            "value": "{{gatewayToken}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"paymentId\": \"{{pagamentoId}}\",\r\n    \"approved\": true\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{apiUrl}}/payments/callback",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "payments",
+            "callback"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T06 - Consultar dados do pedido",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Validade status\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Valida resposta da API\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.id).to.not.be.null;\r",
+              "    pm.expect(jsonData.customerId).to.not.be.null;\r",
+              "    pm.expect(jsonData.customerName).to.eq('Cliente da Silva');\r",
+              "    pm.expect(jsonData.status).to.eq('IN_PREPARATION');\r",
+              "    pm.expect(jsonData.total).to.eq(77.80);\r",
+              "    pm.expect(jsonData.items).to.have.length(2);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{apiUrl}}/orders/{{pedidoId}}",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "orders",
+            "{{pedidoId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T07 - Atualizar status do pedido para READY",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Validade status\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Valida resposta da API\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.id).to.not.be.null;\r",
+              "    pm.expect(jsonData.customerId).to.not.be.null;\r",
+              "    pm.expect(jsonData.customerName).to.eq('Cliente da Silva');\r",
+              "    pm.expect(jsonData.status).to.eq('READY');\r",
+              "    pm.expect(jsonData.total).to.eq(77.80);\r",
+              "    pm.expect(jsonData.items).to.have.length(2);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"status\": \"READY\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{apiUrl}}/orders/{{pedidoId}}/status",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "orders",
+            "{{pedidoId}}",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T08 - Log de auditoria gerado após criação de pedido",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Validade status\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Valida resposta da API\", function () {\r",
+              "    var jsonData = pm.response.json().content[0];\r",
+              "    pm.expect(jsonData.id).to.not.be.null;\r",
+              "    pm.expect(jsonData.userId).to.not.be.null;\r",
+              "    pm.expect(jsonData.action).to.eq('ORDER_CREATED');\r",
+              "    pm.expect(jsonData.entityType).to.eq('Order');\r",
+              "    pm.expect(jsonData.details).to.eq('channel=APP total=77.80');\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{apiUrl}}/audit?action=ORDER_CREATED",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "audit"
+          ],
+          "query": [
+            {
+              "key": "action",
+              "value": "ORDER_CREATED"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T09 - Pre-requisito - Criar pedido",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Validade status e salva Id do pedido\", function () {\r",
+              "    pm.response.to.have.status(201);\r",
+              "    const jsonData = pm.response.json();\r",
+              "    pm.collectionVariables.set(\"pedidoId2\", jsonData.id);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Valida resposta da API\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.id).to.not.be.null;\r",
+              "    pm.expect(jsonData.customerId).to.not.be.null;\r",
+              "    pm.expect(jsonData.customerName).to.eq('Cliente da Silva');\r",
+              "    pm.expect(jsonData.status).to.eq('PENDING');\r",
+              "    pm.expect(jsonData.total).to.eq(12.00);\r",
+              "    pm.expect(jsonData.items).to.have.length(1);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customerAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"unitId\": \"{{unitId}}\",\r\n  \"channel\": \"APP\",\r\n  \"items\": [\r\n    { \"productId\": \"{{sucoDeCajuId}}\", \"quantity\": 1 }\r\n  ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{apiUrl}}/orders",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "orders"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T09 - Pre-requisito - Solicitar pagamento",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "\r",
+              "const pedidoId = pm.collectionVariables.get(\"pedidoId2\");\r",
+              "\r",
+              "pm.test(\"Validade status e salva Id do pagamento\", function () {\r",
+              "    pm.response.to.have.status(201);\r",
+              "    const jsonData = pm.response.json();\r",
+              "    pm.collectionVariables.set(\"pagamentoId2\", jsonData.id);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Valida resposta da API\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.id).to.not.be.null;\r",
+              "    pm.expect(jsonData.orderId).to.eq(pedidoId);\r",
+              "    pm.expect(jsonData.status).to.eq('REQUESTED');\r",
+              "    pm.expect(jsonData.amount).to.eq(12.00);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{apiUrl}}/payments/request/{{pedidoId2}}",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "payments",
+            "request",
+            "{{pedidoId2}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T09 - Callback do gateway ->    pagamento negado",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const pedidoId = pm.collectionVariables.get(\"pedidoId2\");\r",
+              "\r",
+              "pm.test(\"Validade status\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Valida resposta da API\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.id).to.not.be.null;\r",
+              "    pm.expect(jsonData.orderId).to.eq(pedidoId);\r",
+              "    pm.expect(jsonData.status).to.eq('REJECTED');\r",
+              "    pm.expect(jsonData.amount).to.eq(12.00);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-Gateway-Token",
+            "value": "{{gatewayToken}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"paymentId\": \"{{pagamentoId2}}\",\r\n    \"approved\": false\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{apiUrl}}/payments/callback",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "payments",
+            "callback"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T09 - Consulta pedido retorna pra AWAIT_PAYMENT",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Validade status\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Valida resposta da API\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.id).to.not.be.null;\r",
+              "    pm.expect(jsonData.customerId).to.not.be.null;\r",
+              "    pm.expect(jsonData.customerName).to.eq('Cliente da Silva');\r",
+              "    pm.expect(jsonData.status).to.eq('AWAITING_PAYMENT');\r",
+              "    pm.expect(jsonData.total).to.eq(12.00);\r",
+              "    pm.expect(jsonData.items).to.have.length(1);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{apiUrl}}/orders/{{pedidoId2}}",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "orders",
+            "{{pedidoId2}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T10 - Negativo - pedido sem token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Validade status\", function () {\r",
+              "    pm.response.to.have.status(401);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Valida resposta da API\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.message).to.eq('Authentication required. Please provide a valid Bearer token.')\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{apiUrl}}/orders",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "orders"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T11 - Negativo - Acesso com perfil sem permissão",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Validade status\", function () {\r",
+              "    pm.response.to.have.status(403);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Valida resposta da API\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.message).to.eq('You do not have permission to perform this action.')\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customerAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{apiUrl}}/orders",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "orders"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T12 - Negativo - Registro sem consentimento",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Validade status\", function () {\r",
+              "    pm.response.to.have.status(422);\r",
+              "    const jsonData = pm.response.json();\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Valida resposta da API\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.details[0]).to.eq('consentAccepted: You must accept the data processing terms to register');\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"cliente2@example.com\",\r\n  \"password\": \"senha1234\",\r\n  \"name\": \"Cliente de Souza\",\r\n  \"consentAccepted\": false\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{apiUrl}}/auth/register/customer",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "auth",
+            "register",
+            "customer"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T13 - Negativo - Pedido com produto inexistente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Validade status\", function () {\r",
+              "    pm.response.to.have.status(404);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Valida resposta da API\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.message).to.contain('Product not found:');\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customerAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"unitId\": \"{{unitId}}\",\r\n  \"channel\": \"APP\",\r\n  \"items\": [\r\n    { \"productId\": \"{{$guid}}\", \"quantity\": 2 }\r\n  ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{apiUrl}}/orders",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "orders"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T14 - Negativo – Pedido sem estoque",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Validade status\", function () {\r",
+              "    pm.response.to.have.status(422);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Valida resposta da API\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.message).to.eq(\"Product 'Baiao de Dois' has insufficient stock at this unit. Available: 0, requested: 2\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customerAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"unitId\": \"{{unitId}}\",\r\n  \"channel\": \"APP\",\r\n  \"items\": [\r\n    { \"productId\": \"{{baiaoDeDoisId}}\", \"quantity\": 2 }\r\n  ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{apiUrl}}/orders",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "orders"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T15 - Pre-requisito - Revogar consentimento",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Validade status\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Valida resposta da API\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.id).to.not.be.null;\r",
+              "    pm.expect(jsonData.action).to.eq('REVOKED');\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customerAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{apiUrl}}/consent/revoke",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "consent",
+            "revoke"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "T15 - Negativo - Pedido bloqueado por falta de consentimento LGPD",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Validade status\", function () {\r",
+              "    pm.response.to.have.status(403);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Valida resposta da API\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.message).to.eq('You must accept the data processing terms before placing an order. Please visit /consent to review and accept.');\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customerAccessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"unitId\": \"{{unitId}}\",\r\n  \"channel\": \"APP\",\r\n  \"items\": [\r\n    { \"productId\": \"{{sucoDeCajuId}}\", \"quantity\": 1 }\r\n  ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{apiUrl}}/orders",
+          "host": [
+            "{{apiUrl}}"
+          ],
+          "path": [
+            "orders"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "apiUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "gatewayToken",
+      "value": "mock-gateway-secret-local"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "customerAccessToken",
+      "value": ""
+    },
+    {
+      "key": "unitId",
+      "value": "a797e0fe-f1be-46a7-9085-942c1d7402aa"
+    },
+    {
+      "key": "baiaoDeDoisId",
+      "value": "dddddddd-dddd-dddd-dddd-000000000001"
+    },
+    {
+      "key": "sucoDeCajuId",
+      "value": "dddddddd-dddd-dddd-dddd-000000000006"
+    },
+    {
+      "key": "clienteId",
+      "value": "643590b4-0bcd-4642-8cd2-ff795bb02ca2"
+    },
+    {
+      "key": "pedidoId",
+      "value": ""
+    },
+    {
+      "key": "pagamentoId",
+      "value": ""
+    },
+    {
+      "key": "pedidoId2",
+      "value": ""
+    },
+    {
+      "key": "pagamentoId2",
+      "value": ""
+    }
+  ]
+}
