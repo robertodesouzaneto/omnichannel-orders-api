@@ -2,6 +2,7 @@ package com.example.omnichannel_orders_api.infrastructure.config;
 
 import com.example.omnichannel_orders_api.infrastructure.security.JwtAuthFilter;
 import com.example.omnichannel_orders_api.infrastructure.security.UserDetailsServiceImpl;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -57,6 +58,30 @@ public class SecurityConfig {
                         // Admin
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json");
+                            response.getWriter().write(
+                                    "{\"error\":\"UNAUTHORIZED\"," +
+                                    "\"message\":\"Authentication required. Please provide a valid Bearer token.\"," +
+                                    "\"details\":[]," +
+                                    "\"timestamp\":\"" + java.time.Instant.now() + "\"," +
+                                    "\"path\":\"" + request.getRequestURI() + "\"}"
+                            );
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.setContentType("application/json");
+                            response.getWriter().write(
+                                    "{\"error\":\"FORBIDDEN\"," +
+                                    "\"message\":\"You do not have permission to perform this action.\"," +
+                                    "\"details\":[]," +
+                                    "\"timestamp\":\"" + java.time.Instant.now() + "\"," +
+                                    "\"path\":\"" + request.getRequestURI() + "\"}"
+                            );
+                        })
                 )
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
