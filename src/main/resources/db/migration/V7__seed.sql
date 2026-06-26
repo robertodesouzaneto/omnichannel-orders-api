@@ -40,12 +40,12 @@ ON CONFLICT (id) DO NOTHING;
 -- STOCK  (todos os produtos na Filial Centro)
 -- -------------------------------------------------------------
 INSERT INTO stock (id, unit_id, product_id, quantity) VALUES
-    ('eeeeeeee-eeee-eeee-eeee-000000000001', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000001', 'dddddddd-dddd-dddd-dddd-000000000001', 50),
-    ('eeeeeeee-eeee-eeee-eeee-000000000002', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000001', 'dddddddd-dddd-dddd-dddd-000000000002', 40),
-    ('eeeeeeee-eeee-eeee-eeee-000000000003', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000001', 'dddddddd-dddd-dddd-dddd-000000000003', 35),
-    ('eeeeeeee-eeee-eeee-eeee-000000000004', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000001', 'dddddddd-dddd-dddd-dddd-000000000004', 60),
-    ('eeeeeeee-eeee-eeee-eeee-000000000005', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000001', 'dddddddd-dddd-dddd-dddd-000000000005', 45),
-    ('eeeeeeee-eeee-eeee-eeee-000000000006', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000001', 'dddddddd-dddd-dddd-dddd-000000000006', 80),
-    ('eeeeeeee-eeee-eeee-eeee-000000000007', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000001', 'dddddddd-dddd-dddd-dddd-000000000007', 80),
-    ('eeeeeeee-eeee-eeee-eeee-000000000008', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000001', 'dddddddd-dddd-dddd-dddd-000000000008', 30)
+    ('eeeeeeee-eeee-eeee-eeee-000000000001', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000001', 'dddddddd-dddd-dddd-dddd-000000000001', 2),
+    ('eeeeeeee-eeee-eeee-eeee-000000000002', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000001', 'dddddddd-dddd-dddd-dddd-000000000002', 3),
+    ('eeeeeeee-eeee-eeee-eeee-000000000003', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000001', 'dddddddd-dddd-dddd-dddd-000000000003', 4),
+    ('eeeeeeee-eeee-eeee-eeee-000000000004', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000001', 'dddddddd-dddd-dddd-dddd-000000000004', 2),
+    ('eeeeeeee-eeee-eeee-eeee-000000000005', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000001', 'dddddddd-dddd-dddd-dddd-000000000005', 5),
+    ('eeeeeeee-eeee-eeee-eeee-000000000006', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000001', 'dddddddd-dddd-dddd-dddd-000000000006', 6),
+    ('eeeeeeee-eeee-eeee-eeee-000000000007', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000001', 'dddddddd-dddd-dddd-dddd-000000000007', 7),
+    ('eeeeeeee-eeee-eeee-eeee-000000000008', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000001', 'dddddddd-dddd-dddd-dddd-000000000008', 8)
 ON CONFLICT (id) DO NOTHING;
