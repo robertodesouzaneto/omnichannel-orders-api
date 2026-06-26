@@ -43,7 +43,9 @@ public class Stock {
 
     public void decrement(int amount) {
         if (this.quantity < amount) {
-            throw new IllegalStateException("Insufficient stock for product: " + product.getName());
+            throw new IllegalStateException(
+                    "Product '" + product.getName() + "' has insufficient stock at this unit. " +
+                    "Available: " + this.quantity + ", requested: " + amount);
         }
         this.quantity -= amount;
     }
